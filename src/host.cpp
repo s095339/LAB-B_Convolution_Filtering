@@ -25,13 +25,34 @@
 
 #include "xcl2.hpp" 
 #include "cmdlineparser.h" 
-#include "opencv2/opencv.hpp"
-
 #include "coefficients.h"
 #include "common.h" 
+//------------
+#include "opencv2/opencv.hpp"
+#include "opencv2/core/core_c.h"
+#include "opencv2/videoio/legacy/constants_c.h"
+#include "opencv2/highgui/highgui_c.h"
+#include "opencv2/core/core.hpp"
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/highgui/highgui_c.h"
+#include "opencv2/videoio.hpp"
+#include "opencv2/imgproc/imgproc_c.h"
+#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/imgcodecs/imgcodecs.hpp"
+#include <opencv2/imgcodecs.hpp>
+#include "opencv2/highgui.hpp"
+#include "opencv2/imgproc.hpp"
+#include "opencv2/imgcodecs.hpp"
+#include "opencv2/imgproc/types_c.h"
+#include "opencv2/imgproc/imgproc_c.h"
+#include "opencv2/core/core_c.h"
+#include "opencv2/imgcodecs/legacy/constants_c.h"
+//------------
+
 
 using namespace sda;
 using namespace sda::utils;
+using namespace cv;
 
 #define RESET   "\033[0m"
 #define RED     "\033[31m"
@@ -81,8 +102,17 @@ static void writeRawImage(
   // Conver to cvMat
   cvConvert( dst, cvCreateMat(height, width, CV_32FC3 ) );
 
-  // Write to disk
-  cvSaveImage(filename.c_str(), dst);
+  
+  //Configure for newer Opencv-----
+  Mat img = cvarrToMat(dst);
+  bool isSave = imwrite("OutputImageFromKernel.jpg",img);
+  if(isSave){
+    printf("Writed image successfully");
+  }else{
+    printf("fail to write image");
+  }
+  //-------------------------------
+  //cvSaveImage(filename.c_str(), dst);
 }
 
 
@@ -167,6 +197,7 @@ class Filter2DRequest
       // Schedule the writing of the inputs from host to device
       OCL_CHECK(err, err = q.enqueueWriteBuffer(coef_buffer, CL_FALSE, offset, (FILTER_V_SIZE*FILTER_V_SIZE)*sizeof(char), &coeffs[0][0], nullptr, &in1_event) );
       OCL_CHECK(err, err = q.enqueueWriteBuffer(src_buffer,  CL_FALSE, offset, nbytes, src, nullptr, &in2_event) );
+      
       events.push_back(in1_event);
       events.push_back(in2_event);
 
@@ -175,7 +206,10 @@ class Filter2DRequest
       events.push_back(run_event);
 
       // Schedule the reading of the outputs from device back to host
+      //my code----
       OCL_CHECK(err, err = q.enqueueReadBuffer(dst_buffer, CL_FALSE, offset, nbytes, dst, &events, &out_event) );
+      
+      //----------
       events.push_back(out_event);       
     }
 
@@ -297,8 +331,24 @@ int main(int argc, char** argv)
   std::string srcFileName = inputImage;
 
   // Read Input image
-  IplImage *src;
-  src = cvLoadImage(srcFileName.c_str()); //format is BGR
+  //IplImage *src;
+  //src = cvLoadImage(srcFileName.c_str()); //format is BGR
+
+  //Configure-----------------------
+  Mat img2;
+  printf("--------------------------\n");
+  printf("Reading Image\n");
+  printf("--------------------------\n");
+  img2 = imread(srcFileName,IMREAD_UNCHANGED );
+  printf("%s\n",srcFileName.c_str());
+  #if CV_MAJOR_VERSION>3
+    IplImage ipl = cvIplImage(img2);
+  #else
+    IplImage ipl = img2;
+  #endif
+  IplImage *src = cvCloneImage(&ipl);
+  //--------------------------------
+
   if(!src) {
     printf("ERROR: Loading image %s failed\n", srcFileName.c_str());
     return -1;

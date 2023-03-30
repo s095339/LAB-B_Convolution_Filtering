@@ -1,15 +1,15 @@
 ############## Default Vitis Build Target : Select only ONE  #
 TARGET ?=hw
-PLATFORM ?= xilinx_u200_gen3x16_xdma_1_202110_1
+PLATFORM ?= xilinx_u50_gen3x16_xdma_5_202210_1
 ENABLE_STALL_TRACE ?= yes
-TRACE_DDR=DDR[3]
+TRACE_DDR=HBM[3]
 
 ############## Host Application Options
 FILTER_TYPE :=3
 PARALLEL_ENQ_REQS :=6
 NUM_IMAGES :=1000
-INPUT_TYPE :=random
-INPUT_IMAGE :=../test_images/xilinx_versal_1080p.bmp
+INPUT_TYPE :=""
+INPUT_IMAGE := "/mnt/HLSNAS/04.HPOmGn/m111061549/LabB_github/Vitis-Tutorials/Hardware_Acceleration/Design_Tutorials/01-convolution-tutorial/images/inputImage50.jpg"
 ENABLE_PROF?=yes
 PROFILE_ALL_IMAGES?=no
 IMAGE_WIDTH :=1920
@@ -25,8 +25,8 @@ PRE_BUILT_XCLBIN_PATH :=../xclbin/fpgabinary.hw.xclbin
 ############## OpenCV Installation Paths
 #OPENCV_INCLUDE :=/wrk/xsjhdnobkup3/shahzadb/d_apps/softwareInstall/anacondaInstall5aug20/envs/opencv2.4/include
 #OPENCV_LIB :=/wrk/xsjhdnobkup3/shahzadb/d_apps/softwareInstall/anacondaInstall5aug20/envs/opencv2.4/lib
-OPENCV_INCLUDE :=/usr/include/opencv2
-OPENCV_LIB :=/usr/lib64
+OPENCV_INCLUDE :=/usr/local/include/opencv4/
+OPENCV_LIB :=/usr/local/lib/
 
 ############## Kernel Configuration File
 KERNEL_CONFIG_FILE :=krnl_build_options.cfg

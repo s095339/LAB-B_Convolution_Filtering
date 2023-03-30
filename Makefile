@@ -90,11 +90,15 @@ ifneq ($(shell expr $(shell g++ -dumpversion) \>= 5), 1)
 endif
 
 ############## Set "HOST" Compiler Paths and Flags
+
 CXXFLAGS += -I$(XILINX_XRT)/include/
 CXXFLAGS += -I$(XILINX_VIVADO)/include/
 ifneq ($(INPUT_TYPE), random)
 CXXFLAGS += -I$(OPENCV_INCLUDE)/
 endif
+#Mycode---
+CXXFLAGS += -I$(OPENCV_INCLUDE)/opencv2/
+#---------
 CXXFLAGS += -I$(SRC_REPO)
 CXXFLAGS += -O3 -Wall -fmessage-length=0 -std=c++14
 
@@ -103,6 +107,11 @@ CXXLDFLAGS := -L$(XILINX_XRT)/lib/
 ifneq ($(INPUT_TYPE),random)
 CXXLDFLAGS += -L$(OPENCV_LIB)/
 endif
+#mycode------------------------
+CXXLDFLAGS += -L$(OPENCV_LIB)/
+CXXLDFLAGS += -lopencv_imgcodecs  #it finally worked!!
+CXXLDFLAGS += -L/usr/local/lib/
+#-----------------------------
 CXXLDFLAGS += -lOpenCL -pthread -lrt -lstdc++ -lxilinxopencl -fopenmp
 ifneq ($(INPUT_TYPE),random)
 CXXLDFLAGS += -Wl,-rpath=$(OPENCV_LIB)/ -lopencv_core -lopencv_highgui
